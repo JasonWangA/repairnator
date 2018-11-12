@@ -3,7 +3,9 @@ package fr.inria.spirals.repairnator.process.step;
 import fr.inria.spirals.repairnator.process.inspectors.ProjectInspector;
 import fr.inria.spirals.repairnator.process.maven.MavenHelper;
 import fr.inria.spirals.repairnator.states.PipelineState;
+import org.apache.maven.model.Plugin;
 
+import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -21,6 +23,14 @@ public class Checkstyle extends AbstractStep {
         super(inspector, blockingStep, stepName);
     }
 
+    private Optional<Plugin> getCheckstylePlugin(){
+        for ( Plugin plugin : this.getInspector().getJobStatus().getPlugins()){
+            if ( plugin.getArtifactId().equals("maven-checkstyle-plugin") ){
+                return Optional.of(plugin);
+            }
+        }
+        return Optional.empty();
+    }
 
     protected StepStatus businessExecute() {
         this.getLogger().debug("Run checkstyle on the project");
@@ -30,6 +40,13 @@ public class Checkstyle extends AbstractStep {
 
         MavenHelper helper = new MavenHelper(this.getPom(), "checkstyle:checkstyle", properties, this.getClass().getSimpleName(), this.getInspector(), true, false);
 
+        Optional<Plugin> checkstylePlugin = this.getCheckstylePlugin();
+
+        if ( !checkstylePlugin.isPresent() ){
+            this.addStepError("Repository " + this.getInspector().getRepoSlug() + " don't have maven-checkstyle-plugin.");
+            return StepStatus.buildError(this, PipelineState.NO_CHECKSTYLE_FOUND);
+        }
+
         int result;
         try {
             result = helper.run();
@@ -37,7 +54,6 @@ public class Checkstyle extends AbstractStep {
             this.addStepError("Error while running checkstyle", e);
             result = MavenHelper.MAVEN_ERROR;
         }
-
         if (result == MavenHelper.MAVEN_SUCCESS) {
             return StepStatus.buildError(this, PipelineState.NOTFAILING);
         } else {
