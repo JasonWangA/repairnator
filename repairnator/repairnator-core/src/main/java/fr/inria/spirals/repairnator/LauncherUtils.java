@@ -113,30 +113,21 @@ public class LauncherUtils {
         FlaggedOption opt = new FlaggedOption("input");
         opt.setShortFlag('i');
         opt.setLongFlag("input");
-        opt.setStringParser(FileStringParser.getParser().setMustExist(true).setMustBeFile(true));
-        opt.setRequired(true);
+        opt.setDefault("/tmp/input.txt");
         opt.setHelp(helpMessage);
         return opt;
     }
 
     public static File getArgInput(JSAPResult arguments) {
-        return arguments.getFile("input");
+        return arguments.getObject("input") instanceof File ? (File) arguments.getObject("input") : new File(arguments.getString("input"));
     }
 
     public static FlaggedOption defineArgOutput(LauncherType launcherType, String helpMessage) {
         FlaggedOption opt = new FlaggedOption("output");
         opt.setShortFlag('o');
         opt.setLongFlag("output");
-
-        FileStringParser fileStringParser = FileStringParser.getParser();
-        if (launcherType == LauncherType.SCANNER || launcherType == LauncherType.CHECKBRANCHES) {
-            fileStringParser.setMustBeFile(true);
-        } else {
-            fileStringParser.setMustBeDirectory(true).setMustExist(true);
-        }
-        opt.setStringParser(fileStringParser);
-
-        if (launcherType == LauncherType.DOCKERPOOL || launcherType == LauncherType.REALTIME || launcherType == LauncherType.CHECKBRANCHES) {
+        opt.setDefault("/tmp/repairnator-output");
+        if (launcherType == LauncherType.DOCKERPOOL || launcherType == LauncherType.CHECKBRANCHES) {
             opt.setRequired(true);
         }
 
@@ -146,7 +137,9 @@ public class LauncherUtils {
     }
 
     public static File getArgOutput(JSAPResult arguments) {
-        return arguments.getFile("output");
+        File output = new File(arguments.getString("output"));
+        if (!output.exists()) { output.mkdirs(); }
+        return output;
     }
 
     public static FlaggedOption defineArgMongoDBHost() {
@@ -266,7 +259,7 @@ public class LauncherUtils {
         opt.setShortFlag('l');
         opt.setLongFlag("logDirectory");
         opt.setStringParser(JSAP.STRING_PARSER);
-        opt.setRequired(true);
+        opt.setDefault("/tmp/repairnator-logs");
         opt.setHelp("Specify where to put logs and serialized files created by docker machines.");
         return opt;
     }
@@ -332,7 +325,6 @@ public class LauncherUtils {
         opt.setShortFlag('n');
         opt.setLongFlag("name");
         opt.setStringParser(JSAP.STRING_PARSER);
-        opt.setRequired(true);
         opt.setHelp("Specify the docker image name to use.");
         return opt;
     }
@@ -344,8 +336,8 @@ public class LauncherUtils {
     public static FlaggedOption defineArgGithubOAuth() {
         FlaggedOption opt = new FlaggedOption("ghOauth");
         opt.setLongFlag("ghOauth");
-        opt.setRequired(true);
         opt.setStringParser(JSAP.STRING_PARSER);
+        opt.setDefault("foobar");
         opt.setHelp("Specify Github Token to use");
         return opt;
     }

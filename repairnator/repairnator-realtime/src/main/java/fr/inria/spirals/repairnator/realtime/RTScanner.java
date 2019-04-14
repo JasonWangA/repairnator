@@ -153,22 +153,9 @@ public class RTScanner {
     }
 
     private void addInBlacklistRepository(Repository repository, BlacklistedSerializer.Reason reason, String comment) {
-        LOGGER.info("Repository "+repository.getSlug()+" (id: "+repository.getId()+") is blacklisted. Reason: "+reason.name()+" Comment: "+comment);
+        LOGGER.info("Blacklisting repository "+repository.getSlug()+" (id: "+repository.getId()+"). Reason: "+reason.name()+" Comment: "+comment);
         this.blacklistedSerializer.serialize(repository, reason, comment);
         this.blackListedRepository.add(repository.getId());
-
-        if (this.blacklistWriter != null) {
-            try {
-                this.blacklistWriter.append(repository.getId()+"");
-                this.blacklistWriter.append("\n");
-                this.blacklistWriter.flush();
-            } catch (IOException e) {
-                LOGGER.error("Error while writing entry in blacklist");
-            }
-        } else {
-            LOGGER.warn("Blacklist file not initialized: the entry won't be written.");
-        }
-
     }
 
     private void addInWhitelistRepository(Repository repository) {
