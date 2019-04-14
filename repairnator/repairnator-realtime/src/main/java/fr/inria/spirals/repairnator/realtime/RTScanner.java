@@ -300,7 +300,7 @@ public class RTScanner {
         }
 
         if (failing) {
-            LOGGER.info("Failing or erroring tests has been found in build (id: "+build.getId()+")");
+            LOGGER.info("Failing or erroring tests has been found in build https://api.travis-ci.org/v3/build/"+build.getId());
             //this.buildRunner.submitBuild(build);
         } else {
             LOGGER.info("No failing or erroring test has been found in build (id: "+build.getId()+")");
