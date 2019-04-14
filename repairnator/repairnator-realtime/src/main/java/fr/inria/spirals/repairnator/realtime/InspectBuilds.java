@@ -94,6 +94,7 @@ public class InspectBuilds implements Runnable {
             // we iterate over all builds to refresh them
             for (Build build : this.waitingBuilds) {
                 boolean refreshStatus = RepairnatorConfig.getInstance().getJTravis().refresh(build);
+                LOGGER.debug("Build status id:"+build.getId()+" | Status: "+build.getState()+" | "+build.getFinishedAt());
                 if (!refreshStatus) {
                     LOGGER.error("Error while refreshing build: "+build.getId());
                 } else {
