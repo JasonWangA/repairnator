@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public class InspectBuilds implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(InspectBuilds.class);
 
-    public static final int BUILD_SLEEP_TIME = 10;
+    public static final int BUILD_SLEEP_TIME = 10; // in seconds
     public static final int LIMIT_SUBMITTED_BUILDS = 100;
     private static final int NB_ELEMENT_TRAVIS_JOB = 250; // the number of elements returned by Travis Job endpoint
 
@@ -94,7 +94,7 @@ public class InspectBuilds implements Runnable {
             // we iterate over all builds to refresh them
             for (Build build : this.waitingBuilds) {
                 boolean refreshStatus = RepairnatorConfig.getInstance().getJTravis().refresh(build);
-                LOGGER.debug("Build status id:"+build.getId()+" | Status: "+build.getState()+" | "+build.getFinishedAt());
+                LOGGER.info("Build status id:"+build.getId()+" | Status: "+build.getState()+" | "+build.getFinishedAt());
                 if (!refreshStatus) {
                     LOGGER.error("Error while refreshing build: "+build.getId());
                 } else {
