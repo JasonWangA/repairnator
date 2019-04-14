@@ -301,7 +301,7 @@ public class RTScanner {
 
         if (failing) {
             LOGGER.info("Failing or erroring tests has been found in build (id: "+build.getId()+")");
-            this.buildRunner.submitBuild(build);
+            //this.buildRunner.submitBuild(build);
         } else {
             LOGGER.info("No failing or erroring test has been found in build (id: "+build.getId()+")");
         }
