@@ -11,6 +11,7 @@ import fr.inria.spirals.repairnator.PeriodStringParser;
 import fr.inria.spirals.repairnator.config.RepairnatorConfig;
 import fr.inria.spirals.repairnator.notifier.EndProcessNotifier;
 import fr.inria.spirals.repairnator.notifier.engines.NotifierEngine;
+import fr.inria.spirals.repairnator.realtime.counter.PatchCounter;
 import fr.inria.spirals.repairnator.realtime.notifier.TimedSummaryNotifier;
 import fr.inria.spirals.repairnator.serializer.HardwareInfoSerializer;
 import fr.inria.spirals.repairnator.serializer.engines.SerializerEngine;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 
@@ -160,6 +162,13 @@ public class RTLauncher {
         opt2.setHelp("Duration between summary emails. If not given, the emails will never be sent. This argument should be given on the ISO-8601 duration format: PWdTXhYmZs where W, X, Y, Z respectively represents number of Days, Hours, Minutes and Seconds. T is mandatory before the number of hours and P is always mandatory.");
         jsap.registerParameter(opt2);
 
+        opt2 = new FlaggedOption("numberofpatchedbuilds");
+        opt2.setLongFlag("numberofatchedbuilds");
+        opt2.setStringParser(JSAP.INTEGER_PARSER);
+        opt2.setDefault(0 + "");
+        opt2.setHelp("The number of builds that Repairnator should patched before shutting down. If 0, it will run indefinitely.");
+        jsap.registerParameter(opt2);
+
         return jsap;
     }
 
@@ -215,6 +224,7 @@ public class RTLauncher {
         }
         this.config.setCreatePR(LauncherUtils.getArgCreatePR(arguments));
         this.config.setRepairTools(new HashSet<>(Arrays.asList(arguments.getStringArray("repairTools"))));
+        this.config.setNumberOfPatchedBuilds(arguments.getInt("numberofpatchedbuilds"));
     }
 
     private void initSerializerEngines() {
