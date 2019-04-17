@@ -58,7 +58,6 @@ import java.util.Set;
         requiresDependencyResolution = ResolutionScope.TEST)
 public class NPEFixMojo extends AbstractRepairMojo {
 
-    private static String HARDCODED_NPEFIX_VERSION = "0.7";
     /**
      * Location of the file.
      */
@@ -167,6 +166,13 @@ public class NPEFixMojo extends AbstractRepairMojo {
 
         JSONObject jsonObject = result.toJSON(spoon);
         jsonObject.put("endInit", initDate.getTime());
+        System.out.println(resultDirectory.getAbsolutePath());
+        System.out.println(jsonObject.getJSONArray("executions"));
+        for(Object ob : jsonObject.getJSONArray("executions"))
+        {
+                // the patch in the json file
+                System.out.println(((JSONObject)ob).getString("diff"));
+        }
         try {
             for (Decision decision : CallChecker.strategySelector.getSearchSpace()) {
                 jsonObject.append("searchSpace", decision.toJSON());
@@ -266,13 +272,20 @@ public class NPEFixMojo extends AbstractRepairMojo {
         return output;
     }
 
+    public static String getNpeFixVersion() {
+        try {
+        final java.util.Properties properties = new java.util.Properties();
+        properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("versions.properties"));
+        return (properties.getProperty("npefix.version"));
+        } catch (Exception e) { throw new RuntimeException(e); }
+    }
     private String classpath(List<URL> dependencies) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < dependencies.size(); i++) {
             URL s = dependencies.get(i);
             sb.append(s.getPath()).append(File.pathSeparatorChar);
         }
-        final Artifact artifact =artifactFactory.createArtifact("fr.inria.spirals","npefix", HARDCODED_NPEFIX_VERSION, null, "jar");
+        final Artifact artifact =artifactFactory.createArtifact("fr.inria.gforge.spirals","npefix",  getNpeFixVersion(), null, "jar");
         File file = new File(localRepository.getBasedir() + "/" + localRepository.pathOf(artifact));
 
         sb.append(file.getAbsoluteFile());
